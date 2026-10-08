@@ -18,7 +18,7 @@ CONFIG_FILE="$CONFIG_DIR/config.lua"
 BIN_PATH="$BIN_DIR/toko"
 
 if ! command -v cargo >/dev/null 2>&1; then
-  cat >&2 <<'EOF'
+    cat >&2 <<'EOF'
 error: `cargo` was not found on your PATH.
 
 toko is written in Rust. Install the Rust toolchain first:
@@ -27,12 +27,12 @@ toko is written in Rust. Install the Rust toolchain first:
 
 Then restart your shell (or run `source "$HOME/.cargo/env"`) and try again.
 EOF
-  exit 1
+    exit 1
 fi
 
 if ! command -v rustc >/dev/null 2>&1; then
-  echo "error: rustc was not found. Your Rust installation may be incomplete." >&2
-  exit 1
+    echo "error: rustc was not found. Your Rust installation may be incomplete." >&2
+    exit 1
 fi
 
 echo "Using $(cargo --version) and $(rustc --version)"
@@ -41,8 +41,8 @@ echo "Building toko in release mode (this may take a few minutes)..."
 cargo build --release
 
 if [ ! -f "target/release/toko" ]; then
-  echo "error: build completed but target/release/toko was not produced." >&2
-  exit 1
+    echo "error: build completed but target/release/toko was not produced." >&2
+    exit 1
 fi
 
 mkdir -p "$BIN_DIR"
@@ -52,9 +52,9 @@ echo "Installed binary: $BIN_PATH"
 mkdir -p "$CONFIG_DIR"
 
 if [ -e "$CONFIG_FILE" ]; then
-  echo "Existing config preserved: $CONFIG_FILE"
+    echo "Existing config preserved: $CONFIG_FILE"
 else
-  cat >"$CONFIG_FILE" <<'EOF'
+    cat > "$CONFIG_FILE" <<'EOF'
 -- Toko configuration
 
 -- Wallpaper directory
@@ -66,7 +66,7 @@ backend = "auto"
 -- Maximum dimension of cached preview images
 preview_max_dim = 1280
 EOF
-  echo "Created default config: $CONFIG_FILE"
+    echo "Created default config: $CONFIG_FILE"
 fi
 
 cat <<EOF
@@ -80,11 +80,11 @@ Run it with:
 
   toko
 
-If $(toko) is not found, add ~/.local/bin to your PATH:
+If 'toko' is not found, add ~/.local/bin to your PATH:
 
   export PATH="\$HOME/.local/bin:\$PATH"
 
-Wallpaper backends ($(awww), $(swaybg)) are NOT installed by this script.
+Wallpaper backends ('awww', 'swaybg') are NOT installed by this script.
 Install one of them separately and use a Wayland compositor that
 supports wlr-layer-shell (sway, Hyprland, niri, river, etc.).
 EOF
