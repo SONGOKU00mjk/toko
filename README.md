@@ -241,14 +241,7 @@ When no backend is available, `toko` still starts and runs normally.
 Pressing `s` shows an error in the status bar instead of setting the
 wallpaper.
 
-### Sandboxing
 
-The Lua environment exposes only `string`, `table`, `math`, and `utf8`.
-There is no `io`, `os`, `package`, `debug`, `ffi`, or network access.
-The config chunk's `_ENV` is a private table pre-populated with the
-defaults, so config code cannot read or write real Lua globals.
-
----
 
 ## Keyboard controls
 
@@ -316,54 +309,6 @@ and use the standard static preview.
 
 ---
 
-## Screenshots
-
-Screenshots live in `docs/`:
-
-```
-docs/
-├── screenshot-normal.png
-├── screenshot-fullscreen.png
-└── screenshot-gif.gif
-```
-
-### Taking a screenshot
-
-On Wayland, `grim` + `slurp` is the standard pair:
-
-```bash
-grim -g "$(slurp)" docs/screenshot-normal.png
-```
-
-Or fullscreen:
-
-```bash
-grim docs/screenshot-fullscreen.png
-```
-
-Other options: `flameshot gui`, `spectacle` (KDE), `gnome-screenshot`.
-
-### Recording an animated GIF
-
-Use `wf-recorder`:
-
-```bash
-wf-recorder -g "$(slurp)" -f docs/screenshot-gif.gif
-```
-
-Press `Ctrl+C` to stop. Keep it short — under ~2 seconds and ~500 KB.
-
-### Committing screenshots
-
-```bash
-git add docs/
-git commit -m "docs: add screenshots"
-git push
-```
-
-GitHub renders relative-path images automatically.
-
----
 
 ## Development
 
