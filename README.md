@@ -6,10 +6,9 @@ Browse wallpapers with a live image preview, set them with a single
 keypress, and keep a persistent preview cache so revisiting your
 collection is instant. Built in Rust with `ratatui`.
 
-![toko normal view](docs/screenshot-normal.png)
-![toko fullscreen preview](docs/screenshot-fullscreen.png)
-
-*Screenshots coming soon.*
+> **Vibe coded.** This project was built iteratively with an AI coding
+> assistant. The code is functional and tested, but treat it as a
+> hobby project rather than a production-grade tool.
 
 ---
 
@@ -28,7 +27,6 @@ collection is instant. Built in Rust with `ratatui`.
 - [Supported image formats](#supported-image-formats)
 - [Cache](#cache)
 - [GIF animation](#gif-animation)
-- [Screenshots](#screenshots)
 - [Development](#development)
 - [License](#license)
 
@@ -76,7 +74,7 @@ backends. Install them through your distribution's package manager:
 # Example: Arch
 sudo pacman -S awww     # or: sudo pacman -S swaybg
 
-# Example: Debian/Ubuntu (swaybg is in main)
+# Example: Debian/Ubuntu
 sudo apt install swaybg
 ```
 
@@ -86,34 +84,23 @@ Then make sure your compositor supports them (see above).
 
 ## Installation
 
-Four options, from easiest to most manual. Pick whichever matches how
-you want to manage the binary.
-
 ### Option 1 — one-line install (no clone)
-
-If you just want the binary and don't want to clone the repo:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SONGOKU00mjk/toko/main/install-remote.sh | bash
 ```
 
-This downloads the latest release source, builds it in a temporary
-directory, installs the binary to `~/.local/bin/toko`, and writes a
-default config to `~/.config/toko/config.lua` on first install. Your
-existing config is never touched.
+Downloads the latest source into a temporary directory, builds it, and
+installs the binary to `/usr/local/bin/toko`. You'll be prompted for
+your password once (for the `sudo` install step). The default config is
+written to `~/.config/toko/config.lua` on first install; your existing
+config is never touched.
 
-After install, add `~/.local/bin` to your `PATH` if it isn't already:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-To make that permanent, add the line to your shell's startup file
-(`~/.bashrc`, `~/.zshrc`, `~/.config/fish/config.fish`, etc.).
+Because `/usr/local/bin` is already on the `PATH` of every user and
+shell, no `.bashrc` edits or logout/login are needed. `toko` works
+immediately in any new terminal.
 
 ### Option 2 — clone and run install.sh
-
-For developers and anyone who wants the full source tree:
 
 ```bash
 git clone https://github.com/SONGOKU00mjk/toko.git
@@ -125,18 +112,19 @@ The installer:
 
 1. Verifies that `cargo` and `rustc` are on `PATH`.
 2. Runs `cargo build --release` from the repo root.
-3. Installs the built binary to `~/.local/bin/toko` (mode `0755`).
+3. Installs the built binary to `/usr/local/bin/toko` via `sudo`.
 4. Creates `~/.config/toko/config.lua` with defaults **only if the
    file does not already exist**.
-5. Prints the binary path, the config path, and how to run `toko`.
+5. Prints the binary path, config path, and how to run `toko`.
 
-It never requires `sudo`, never writes outside `$HOME`, and is safe to
-run repeatedly — upgrades replace only the binary, leaving your config
-alone.
+It never launches `toko`, never touches shell config files, and is safe
+to run repeatedly — upgrades replace only the binary, leaving your
+config alone.
 
 ### Option 3 — `cargo install` from git
 
-If you already have Cargo and just want the binary in `~/.cargo/bin`:
+If you'd rather use Cargo's own install mechanism, which places the
+binary in `~/.cargo/bin` (already on `PATH` for anyone with rustup):
 
 ```bash
 cargo install --git https://github.com/SONGOKU00mjk/toko.git --locked
@@ -144,24 +132,28 @@ cargo install --git https://github.com/SONGOKU00mjk/toko.git --locked
 
 This does not create a config file. On first run, `toko` uses built-in
 defaults (`~/Pictures/wallpapers`, backend `auto`, preview size 1280).
-You can create a config manually later — see
+Create a config manually later if you want to override them — see
 [Configuration](#configuration).
 
-### Option 4 — manual build
+To uninstall:
 
-If you'd rather wire things up yourself:
+```bash
+cargo uninstall toko
+```
+
+### Option 4 — manual build
 
 ```bash
 git clone https://github.com/SONGOKU00mjk/toko.git
 cd toko
 cargo build --release
-
-install -Dm755 target/release/toko ~/.local/bin/toko
+sudo install -Dm755 target/release/toko /usr/local/bin/toko
 mkdir -p ~/.config/toko
 ```
 
-Then create `~/.config/toko/config.lua` manually if you want to override
-the defaults. See [Configuration](#configuration) for the schema.
+Then create `~/.config/toko/config.lua` manually if you want to
+override the defaults. See [Configuration](#configuration) for the
+schema.
 
 ### Verifying the install
 
@@ -179,15 +171,6 @@ If `toko` runs and shows the two-pane UI, you're done.
 ```bash
 toko
 ```
-
-If it says `command not found`, `~/.local/bin` is not on your `PATH`:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-To make this permanent, append the same line to your shell's startup
-file.
 
 ---
 
@@ -241,7 +224,14 @@ When no backend is available, `toko` still starts and runs normally.
 Pressing `s` shows an error in the status bar instead of setting the
 wallpaper.
 
+### Sandboxing
 
+The Lua environment exposes only `string`, `table`, `math`, and `utf8`.
+There is no `io`, `os`, `package`, `debug`, `ffi`, or network access.
+The config chunk's `_ENV` is a private table pre-populated with the
+defaults, so config code cannot read or write real Lua globals.
+
+---
 
 ## Keyboard controls
 
@@ -308,7 +298,6 @@ pinning a CPU core. Single-frame GIFs skip the animation path entirely
 and use the standard static preview.
 
 ---
-
 
 ## Development
 
