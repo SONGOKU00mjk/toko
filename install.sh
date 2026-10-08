@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 #
-# Installer for toko. Builds the release binary, installs it to
-# ~/.local/bin/toko, and creates a default config at
-# ~/.config/toko/config.lua on first install.
+# Installer for toko. Builds the release binary and installs it to
+# /usr/local/bin/toko, which is already on PATH for every user and
+# every shell.
 #
-# Safe to run repeatedly. Never overwrites an existing config.
-# Does not require root.
+# Requires sudo for the final install step. Never launches toko.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-BIN_DIR="$HOME/.local/bin"
+BIN_DIR="/usr/local/bin"
+BIN_PATH="$BIN_DIR/toko"
 CONFIG_DIR="$HOME/.config/toko"
 CONFIG_FILE="$CONFIG_DIR/config.lua"
-BIN_PATH="$BIN_DIR/toko"
+
+# --- 1. Verify Rust toolchain ------------------------------------------------
 
 if ! command -v cargo >/dev/null 2>&1; then
     cat >&2 <<'EOF'
@@ -37,17 +38,23 @@ fi
 
 echo "Using $(cargo --version) and $(rustc --version)"
 
+# --- 2. Build ----------------------------------------------------------------
+
 echo "Building toko in release mode (this may take a few minutes)..."
 cargo build --release
 
-if [ ! -f "target/release/toko" ]; then
+if [ ! -x "target/release/toko" ]; then
     echo "error: build completed but target/release/toko was not produced." >&2
     exit 1
 fi
 
-mkdir -p "$BIN_DIR"
-install -m 0755 "target/release/toko" "$BIN_PATH"
+# --- 3. Install the binary (needs sudo for /usr/local/bin) -------------------
+
+echo "Installing to $BIN_PATH (sudo required)..."
+sudo install -Dm755 "target/release/toko" "$BIN_PATH"
 echo "Installed binary: $BIN_PATH"
+
+# --- 4. Create the config on first install -----------------------------------
 
 mkdir -p "$CONFIG_DIR"
 
@@ -69,22 +76,17 @@ EOF
     echo "Created default config: $CONFIG_FILE"
 fi
 
-cat <<EOF
+# --- 5. Success message ------------------------------------------------------
 
-toko installed successfully.
-
-  Binary : $BIN_PATH
-  Config : $CONFIG_FILE
-
-Run it with:
-
-  toko
-
-If 'toko' is not found, add ~/.local/bin to your PATH:
-
-  export PATH="\$HOME/.local/bin:\$PATH"
-
-Wallpaper backends ('awww', 'swaybg') are NOT installed by this script.
-Install one of them separately and use a Wayland compositor that
-supports wlr-layer-shell (sway, Hyprland, niri, river, etc.).
-EOF
+echo
+echo "Toko installed successfully!"
+echo
+echo "Run:"
+echo "    toko"
+echo
+echo "Binary:"
+echo "    $BIN_PATH"
+echo
+echo "Config:"
+echo "    $CONFIG_FILE"
+echo
